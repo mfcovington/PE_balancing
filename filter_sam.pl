@@ -21,6 +21,7 @@ foreach my $sam (@input_files) {
 	my $pe1_raw = <SAM_IN>;
 	
 	while ($pe1_raw =~ m/^@/) { #read in SAM file until header is gone
+		print OUT $pe1_raw;
 		$pe1_raw = <SAM_IN>;
 	}
 	
