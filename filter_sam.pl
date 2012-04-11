@@ -6,42 +6,40 @@
 # Description: 
 #
 use strict; use warnings;
+use File::Basename;
 
+my $usage = "\n\tUSAGE: ./filter_sam.pl /path/to/*.sam\n\n";
+die $usage unless (@ARGV >= 1);
 
+my @input_files = @ARGV;
 
-# IF YOU WANT TO INCREASE THROUGHPUT, USE SOMETHING LIKE THIS:
-# my $input = $ARGV[0];
-# 
-# my @input_files = `ls $input`;
-# 
-# foreach my $sam (@input_files) {
-# 	#do everything
-# }
-
-open SAM_IN, '<', "test2.sam";
-open OUT, '>', "test.out.sam";
-
-my $pe1_raw = <SAM_IN>;
-
-while ($pe1_raw =~ m/^@/) { #read in SAM file until header is gone
-	$pe1_raw = <SAM_IN>;
-}
-
-while (my $pe2_raw = <SAM_IN>) {
-	my ($read_1, $flag_1, $chr_1) = split(/\t/, $pe1_raw);
-	my ($read_2, $flag_2, $chr_2) = split(/\t/, $pe2_raw);
+foreach my $sam (@input_files) {
+	open SAM_IN, '<', $sam;
+	my ($filename, $directories, $suffix) = fileparse($sam, ".sam");
+	open OUT, '>', $directories . $filename . ".mapped_pairs" . $suffix;
 	
-	next unless substr ($read_1, -1) =~ m/0/;
-	next unless substr ($read_2, -1) =~ m/[23]/;
+	my $pe1_raw = <SAM_IN>;
 	
-	if ($chr_1 eq $chr_2) {
-		print OUT $pe1_raw, $pe2_raw;
-		$pe2_raw = <SAM_IN>;
+	while ($pe1_raw =~ m/^@/) { #read in SAM file until header is gone
+		$pe1_raw = <SAM_IN>;
 	}
-} continue {
-	$pe1_raw = $pe2_raw;
+	
+	while (my $pe2_raw = <SAM_IN>) {
+		my ($read_1, $flag_1, $chr_1) = split(/\t/, $pe1_raw);
+		my ($read_2, $flag_2, $chr_2) = split(/\t/, $pe2_raw);
+		
+		next unless substr ($read_1, -1) =~ m/0/;
+		next unless substr ($read_2, -1) =~ m/[23]/;
+		
+		if ($chr_1 eq $chr_2) {
+			print OUT $pe1_raw, $pe2_raw;
+			$pe2_raw = <SAM_IN>;
+		}
+	} continue {
+		$pe1_raw = $pe2_raw;
+	}
+	
+	close(SAM_IN);
+	close(OUT);
 }
-
-close(SAM_IN);
-close(OUT);
 exit;
