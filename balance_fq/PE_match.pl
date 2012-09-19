@@ -1,5 +1,10 @@
-#!/usr/bin/perl
-#2011-09-07 -mfc- script for extracting matching sequences from PE .fq files where some sequences have been removed
+#!/usr/bin/env perl
+# FILE_NAME.pl
+# Mike Covington
+# created: 2011-09-07
+#
+# Description: Extracts matching sequences from PE .fq files where some sequences have been removed
+#
 
 use strict;
 use warnings;
@@ -14,16 +19,17 @@ my $help;
 my $input = GetOptions(
     "pe1=s" => \$pe1_in,
     "pe2=s" => \$pe2_in,
-    "help" =>\$help);
+    "help"  => \$help
+);
 
 if ($help){
     print "\n\nUsage: perl PE_match.pl --pe1 PE1_input_filename.fq --pe2 PE2_input_filename.fq\n\n";
     exit;
 }
 
-my ($pe1_file, $pe1_dir) = fileparse($pe1_in, ".f(ast)q")
+my ( $pe1_file, $pe1_dir ) = fileparse( $pe1_in, ".f(ast)q" );
+my ( $pe2_file, $pe2_dir ) = fileparse( $pe2_in, ".f(ast)q" );
 my $pe1_out = $pe1_dir . $pe1_file . "_matched.fq";
-my ($pe2_file, $pe2_dir) = fileparse($pe2_in, ".f(ast)q")
 my $pe2_out = $pe2_dir . $pe2_file . "_matched.fq";
 
 my $l1;
