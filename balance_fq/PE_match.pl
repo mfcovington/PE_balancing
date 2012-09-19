@@ -60,7 +60,7 @@ while ( my $l1 = <$pe2_in_fh> ) {
 close($pe2_in_fh);
 close($pe2_out_fh);
 
-open my $pe1_in_fh, "<", $pe1_in;
+open $pe1_in_fh, "<", $pe1_in;
 open my $pe1_out_fh,  ">", $pe1_out;
 while ( my $l1 = <$pe1_in_fh> ) {
     my $l2 = <$pe1_in_fh>;
