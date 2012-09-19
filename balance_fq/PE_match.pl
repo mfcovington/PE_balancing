@@ -45,13 +45,13 @@ open OUT2, ">$pe2_out" or die "\n\nCannot open output $pe2_out\n";
 
 while($l1=<IN1a>){
 	$l2=<IN1a>;$l3=<IN1a>;$l4=<IN1a>;
-	my @a = split(/\//,$l1);
+	my @a = split(/\s/,$l1);
 	$name1{$a[0]}=1;
 }
 
 while($l1=<IN2>){
 	$l2=<IN2>;$l3=<IN2>;$l4=<IN2>;
-    my @a = split(/\//,$l1);
+    my @a = split(/\s/,$l1);
     if($name1{$a[0]}){
 		print OUT2 $l1,$l2,$l3,$l4;
 		$name2{$a[0]}=1;
@@ -60,7 +60,7 @@ while($l1=<IN2>){
 
 while($l1=<IN1b>){
 	$l2=<IN1b>;$l3=<IN1b>;$l4=<IN1b>;
-    my @a = split(/\//,$l1);
+    my @a = split(/\s/,$l1);
     if($name2{$a[0]}){
 		print OUT1 $l1,$l2,$l3,$l4;
 	}
