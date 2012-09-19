@@ -8,9 +8,10 @@
 
 use strict;
 use warnings;
+use autodie;
 use Getopt::Long;
 use File::Basename;
-use autodie;
+use Digest::SHA 'sha1';
 
 my $pe1_in = "PE1 file";
 my $pe2_in = "PE2 file";
@@ -40,7 +41,7 @@ while ( my $l1 = <$pe1_in_fh> ) {
     my $l3 = <$pe1_in_fh>;
     my $l4 = <$pe1_in_fh>;
     my @seq_name = split( /\s/, $l1 );
-    $seqs_observed{ $seq_name[0] } = 1;
+    $seqs_observed{ sha1( $seq_name[0] ) } = 1;
 }
 close($pe1_in_fh);
 
@@ -51,9 +52,9 @@ while ( my $l1 = <$pe2_in_fh> ) {
     my $l3 = <$pe2_in_fh>;
     my $l4 = <$pe2_in_fh>;
     my @seq_name = split( /\s/, $l1 );
-    if ( $seqs_observed{ $seq_name[0] } ) {
+    if ( $seqs_observed{ sha1( $seq_name[0] ) } ) {
         print $pe2_out_fh $l1, $l2, $l3, $l4;
-        $seqs_observed{ $seq_name[0] } = 2;
+        $seqs_observed{ sha1( $seq_name[0] ) } = 2;
     }
 }
 close($pe2_in_fh);
@@ -66,7 +67,7 @@ while ( my $l1 = <$pe1_in_fh> ) {
     my $l3 = <$pe1_in_fh>;
     my $l4 = <$pe1_in_fh>;
     my @seq_name = split( /\s/, $l1 );
-    if ( $seqs_observed{ $seq_name[0] } == 2 ) {
+    if ( $seqs_observed{ sha1( $seq_name[0] ) } == 2 ) {
         print $pe1_out_fh $l1, $l2, $l3, $l4;
     }
 }
