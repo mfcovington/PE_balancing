@@ -4,73 +4,71 @@
 use strict;
 use warnings;
 use Getopt::Long;
-
+use File::Basename;
+use autodie;
 
 my $pe1_in = "PE1 file";
 my $pe2_in = "PE2 file";
-my @prefix;
-my $pe1_out;
-my $pe2_out;
+my $help;
+
+my $input = GetOptions(
+    "pe1=s" => \$pe1_in,
+    "pe2=s" => \$pe2_in,
+    "help" =>\$help);
+
+if ($help){
+    print "\n\nUsage: perl PE_match.pl --pe1 PE1_input_filename.fq --pe2 PE2_input_filename.fq\n\n";
+    exit;
+}
+
+my ($pe1_file, $pe1_dir) = fileparse($pe1_in, ".f(ast)q")
+my $pe1_out = $pe1_dir . $pe1_file . "_matched.fq";
+my ($pe2_file, $pe2_dir) = fileparse($pe2_in, ".f(ast)q")
+my $pe2_out = $pe2_dir . $pe2_file . "_matched.fq";
 
 my $l1;
 my $l2;
 my $l3;
 my $l4;
-
 my %name1;
 my %name2;
 
-my $help;
-
-my $input = GetOptions(
-	"pe1=s" => \$pe1_in,
-	"pe2=s" => \$pe2_in,
-	"help" =>\$help);
-
-if ($help){
-	print "\n\nUsage: perl PE_match.pl --pe1 PE1_input_filename.fq --pe2 PE2_input_filename.fq\n\n";
-	exit;
+open my $pe1_in_fh, "<", $pe1_in;
+while ( $l1 = <$pe1_in_fh> ) {
+    $l2 = <$pe1_in_fh>;
+    $l3 = <$pe1_in_fh>;
+    $l4 = <$pe1_in_fh>;
+    my @seq_name = split( /\s/, $l1 );
+    $name1{ $seq_name[0] } = 1;
 }
+close($pe1_in_fh);
 
-@prefix = split (/.fq/,$pe1_in);
-$pe1_out = join ('',$prefix[0],"_matched.fq");
-@prefix = split (/.fq/,$pe2_in);
-$pe2_out = join ('',$prefix[0],"_matched.fq");
-
-open IN1a, "<$pe1_in" or die "\n\nCannot open $pe1_in\n\nDid you specify the input files properly?\n\nUsage: perl PE_match.pl --pe1 PE1_input_filename.fq --pe2 PE2_input_filename.fq\n\n";
-open IN1b, "<$pe1_in" or die "\n\nCannot open $pe1_in\nDid you specify the input files properly?\n\nUsage: perl PE_match.pl --pe1 PE1_input_filename.fq --pe2 PE2_input_filename.fq\n\n";
-open IN2, "<$pe2_in" or die "\n\nCannot open $pe2_in\nDid you specify the input files properly?\n\nUsage: perl PE_match.pl --pe1 PE1_input_filename.fq --pe2 PE2_input_filename.fq\n\n";
-open OUT1, ">$pe1_out" or die "\n\nCannot open output $pe1_out\n";
-open OUT2, ">$pe2_out" or die "\n\nCannot open output $pe2_out\n";
-
-while($l1=<IN1a>){
-	$l2=<IN1a>;$l3=<IN1a>;$l4=<IN1a>;
-	my @a = split(/\s/,$l1);
-	$name1{$a[0]}=1;
+open my $pe2_in_fh,   "<", $pe2_in;
+open my $pe2_out_fh,  ">", $pe2_out;
+while ( $l1 = <$pe2_in_fh> ) {
+    $l2 = <$pe2_in_fh>;
+    $l3 = <$pe2_in_fh>;
+    $l4 = <$pe2_in_fh>;
+    my @seq_name = split( /\s/, $l1 );
+    if ( $name1{ $seq_name[0] } ) {
+        print $pe2_out_fh $l1, $l2, $l3, $l4;
+        $name2{ $seq_name[0] } = 1;
+    }
 }
+close($pe2_in_fh);
+close($pe2_out_fh);
 
-while($l1=<IN2>){
-	$l2=<IN2>;$l3=<IN2>;$l4=<IN2>;
-    my @a = split(/\s/,$l1);
-    if($name1{$a[0]}){
-		print OUT2 $l1,$l2,$l3,$l4;
-		$name2{$a[0]}=1;
-	}
+open my $pe1_in_fh, "<", $pe1_in;
+open my $pe1_out_fh,  ">", $pe1_out;
+while ( $l1 = <$pe1_in_fh> ) {
+    $l2 = <$pe1_in_fh>;
+    $l3 = <$pe1_in_fh>;
+    $l4 = <$pe1_in_fh>;
+    my @seq_name = split( /\s/, $l1 );
+    if ( $name2{ $seq_name[0] } ) {
+        print $pe1_out_fh $l1, $l2, $l3, $l4;
+    }
 }
-
-while($l1=<IN1b>){
-	$l2=<IN1b>;$l3=<IN1b>;$l4=<IN1b>;
-    my @a = split(/\s/,$l1);
-    if($name2{$a[0]}){
-		print OUT1 $l1,$l2,$l3,$l4;
-	}
-}
-
-
-
-close(IN1a);
-close(IN1b);
-close(IN2);
-close(OUT1);
-close(OUT2);
+close($pe1_in_fh);
+close($pe1_out_fh);
 
