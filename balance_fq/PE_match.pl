@@ -29,8 +29,12 @@ if ($help){
 
 my ( $pe1_file, $pe1_dir ) = fileparse( $pe1_in, ".f(ast)q" );
 my ( $pe2_file, $pe2_dir ) = fileparse( $pe2_in, ".f(ast)q" );
+
 my $pe1_out = $pe1_dir . $pe1_file . "_matched.fq";
 my $pe2_out = $pe2_dir . $pe2_file . "_matched.fq";
+
+my $pe1_unmatched = $pe1_dir . $pe1_file . "_unmatched.fq";
+my $pe2_unmatched = $pe2_dir . $pe2_file . "_unmatched.fq";
 
 my $l1;
 my $l2;
@@ -49,8 +53,9 @@ while ( $l1 = <$pe1_in_fh> ) {
 }
 close($pe1_in_fh);
 
-open my $pe2_in_fh,   "<", $pe2_in;
-open my $pe2_out_fh,  ">", $pe2_out;
+open my $pe2_in_fh,        "<", $pe2_in;
+open my $pe2_out_fh,       ">", $pe2_out;
+open my $pe2_unmatched_fh, ">", $pe2_unmatched;
 while ( $l1 = <$pe2_in_fh> ) {
     $l2 = <$pe2_in_fh>;
     $l3 = <$pe2_in_fh>;
@@ -60,12 +65,16 @@ while ( $l1 = <$pe2_in_fh> ) {
         print $pe2_out_fh $l1, $l2, $l3, $l4;
         $name2{ $seq_name[0] } = 1;
     }
+    else {
+        print $pe2_unmatched_fh $l1, $l2, $l3, $l4;
+    }
 }
 close($pe2_in_fh);
 close($pe2_out_fh);
 
-open $pe1_in_fh, "<", $pe1_in;
-open my $pe1_out_fh,  ">", $pe1_out;
+open    $pe1_in_fh,        "<", $pe1_in;
+open my $pe1_out_fh,       ">", $pe1_out;
+open my $pe1_unmatched_fh, ">", $pe1_unmatched;
 while ( $l1 = <$pe1_in_fh> ) {
     $l2 = <$pe1_in_fh>;
     $l3 = <$pe1_in_fh>;
@@ -73,6 +82,9 @@ while ( $l1 = <$pe1_in_fh> ) {
     my @seq_name = split( /\s/, $l1 );
     if ( $name2{ $seq_name[0] } ) {
         print $pe1_out_fh $l1, $l2, $l3, $l4;
+    }
+    else {
+        print $pe1_unmatched_fh $l1, $l2, $l3, $l4;
     }
 }
 close($pe1_in_fh);
