@@ -12,9 +12,7 @@ use Getopt::Long;
 use File::Basename;
 use autodie;
 
-my $pe1_in = "PE1 file";
-my $pe2_in = "PE2 file";
-my $help;
+my ( $pe1_in, $pe2_in, $help );
 
 my $input = GetOptions(
     "pe1=s" => \$pe1_in,
@@ -26,6 +24,7 @@ my $usage = <<EOF;
 Usage: perl PE_match.pl --pe1 PE1_input_filename.fq --pe2 PE2_input_filename.fq
 EOF
 
+die $usage unless defined $pe1_in && defined $pe2_in;
 die $usage if $help;
 
 my ( $pe1_file, $pe1_dir ) = fileparse( $pe1_in, ".f(ast)q" );
