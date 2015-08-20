@@ -22,10 +22,11 @@ my $input = GetOptions(
     "help"  => \$help
 );
 
-if ($help){
-    print "\n\nUsage: perl PE_match.pl --pe1 PE1_input_filename.fq --pe2 PE2_input_filename.fq\n\n";
-    exit;
-}
+my $usage = <<EOF;
+Usage: perl PE_match.pl --pe1 PE1_input_filename.fq --pe2 PE2_input_filename.fq
+EOF
+
+die $usage if $help;
 
 my ( $pe1_file, $pe1_dir ) = fileparse( $pe1_in, ".f(ast)q" );
 my ( $pe2_file, $pe2_dir ) = fileparse( $pe2_in, ".f(ast)q" );
